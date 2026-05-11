@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PostManager — IA para carrosséis prontos</title>
+  <meta name="description" content="Crie carrosséis prontos para Instagram com IA, incluindo textos, imagens, layout e CTA." />
+
+  <style>
+    :root {
+      --orange: #ff6a00;
+      --orange-2: #ff9a3c;
+      --black: #111111;
+      --text: #1f1f1f;
+      --muted: #686868;
+      --bg: #fff8f2;
+      --line: #f1dfcf;
+      --card: #ffffff;
+      --soft: #fff3e8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255,106,0,.14), transparent 24%),
+        radial-gradient(circle at top right, rgba(255,154,60,.12), transparent 28%),
+        linear-gradient(180deg, #fffaf5, #ffffff 50%, #fff8f2);
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1160px, 92%);
+      margin: 0 auto;
+    }
+
+    .header {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 28px;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+      color: var(--black);
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-2));
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      box-shadow: 0 12px 28px rgba(255,106,0,.24);
+    }
+
+    .brand span {
+      color: var(--orange);
+    }
+
+    .nav {
+      display: flex;
+      gap: 26px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .button,
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 15px 22px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-2));
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 16px 34px rgba(255,106,0,.22);
+      font-size: 15px;
+    }
+
+    .button.ghost {
+      background: #fff;
+      color: var(--black);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .button.small {
+      padding: 12px 18px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 56px;
+      align-items: center;
+      padding: 66px 0 76px;
+    }
+
+    .tag {
+      display: inline-flex;
+      color: var(--orange);
+      background: rgba(255,106,0,.08);
+      border: 1px solid rgba(255,106,0,.12);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 900;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(48px, 7vw, 88px);
+      line-height: .9;
+      letter-spacing: -0.085em;
+      color: var(--black);
+      margin-bottom: 24px;
+      max-width: 680px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 590px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-width: 650px;
+    }
+
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 16px 42px rgba(255,106,0,.07);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      letter-spacing: -0.06em;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .dashboard {
+      background: #111;
+      border-radius: 34px;
+      padding: 22px;
+      color: #fff;
+      box-shadow: 0 40px 100px rgba(17,17,17,.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard::before {
+      content: "";
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255,106,0,.42), transparent 70%);
+      position: absolute;
+      top: -95px;
+      right: -95px;
+    }
+
+    .dash-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .dash-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      font-weight: 900;
+    }
+
+    .dash-top span {
+      background: rgba(255,106,0,.14);
+      color: #ffb16c;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .dash-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .dash-card small {
+      color: #aaa;
+      display: block;
+    }
+
+    .dash-card strong {
+      display: block;
+      font-size: 30px;
+      margin-top: 8px;
+      letter-spacing: -0.06em;
+    }
+
+    .dash-preview {
+      background: #fff;
+      color: var(--black);
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    .dash-preview small {
+      color: var(--orange);
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .dash-preview h3 {
+      font-size: 24px;
+      letter-spacing: -0.05em;
+      margin: 10px 0;
+    }
+
+    .dash-preview p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .section {
+      padding: 68px 0;
+    }
+
+    .section-head {
+      max-width: 780px;
+      margin: 0 auto 34px;
+      text-align: center;
+    }
+
+    .section-head h2 {
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: .95;
+      letter-spacing: -0.07em;
+      margin-bottom: 16px;
+      color: var(--black);
+    }
+
+    .section-head p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    .post-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .post-card {
+      min-height: 315px;
+      border-radius: 30px;
+      padding: 24px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 24px 58px rgba(255,106,0,.12);
+      animation: float 4.8s ease-in-out infinite;
+      overflow: hidden;
+    }
+
+    .post-card:nth-child(2) { animation-delay: .14s; }
+    .post-card:nth-child(3) { animation-delay: .28s; }
+    .post-card:nth-child(4) { animation-delay: .42s; }
+
+    .post-card small {
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .post-card h3 {
+      font-size: 26px;
+      line-height: .98;
+      letter-spacing: -0.06em;
+      max-width: 95%;
+    }
+
+    .post-card span {
+      font-weight: 800;
+    }
+
+    .post-card.orange { background: linear-gradient(135deg, #ff6a00, #ff9a3c); }
+    .post-card.dark { background: linear-gradient(135deg, #111, #30231c); }
+    .post-card.green { background: linear-gradient(135deg, #dff2e5, #fff); color: #13251a; }
+    .post-card.pet { background: linear-gradient(135deg, #ffefe1, #fff); color: #21140c; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature,
+    .form,
+    .result {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: 0 20px 54px rgba(255,106,0,.08);
+    }
+
+    .icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: rgba(255,106,0,.08);
+      color: var(--orange);
+      display: grid;
+      place-items: center;
+      font-size: 23px;
+      margin-bottom: 18px;
+    }
+
+    .feature h3 {
+      font-size: 22px;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .pricing {
+      max-width: 570px;
+      margin: 0 auto;
+      background: #111;
+      color: #fff;
+      border-radius: 38px;
+      padding: 42px;
+      text-align: center;
+      box-shadow: 0 36px 90px rgba(17,17,17,.20);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing::before {
+      content: "";
+      position: absolute;
+      width: 270px;
+      height: 270px;
+      background: radial-gradient(circle, rgba(255,106,0,.50), transparent 70%);
+      right: -95px;
+      top: -95px;
+    }
+
+    .pricing > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .pricing small {
+      color: #ffb16c;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 900;
+    }
+
+    .price {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 5px;
+      margin: 20px 0 14px;
+    }
+
+    .currency {
+      font-size: 28px;
+      font-weight: 900;
+      margin-top: 14px;
+    }
+
+    .main-price {
+      font-size: 94px;
+      line-height: .8;
+      font-weight: 950;
+      letter-spacing: -0.08em;
+    }
+
+    .price-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 13px;
+    }
+
+    .price-side b {
+      color: #ffb16c;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .price-side em {
+      color: #aaa;
+      font-style: normal;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .pricing p {
+      color: #d0d0d0;
+      line-height: 1.7;
+    }
+
+    .pricing ul {
+      list-style: none;
+      display: grid;
+      gap: 12px;
+      margin: 26px 0;
+      text-align: left;
+    }
+
+    .pricing li {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 14px;
+      font-weight: 800;
+    }
+
+    .generator {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .form h2,
+    .result h2 {
+      font-size: 30px;
+      letter-spacing: -0.05em;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fffaf5;
+      color: var(--black);
+      padding: 15px;
+      border-radius: 16px;
+      outline: none;
+      font-size: 15px;
+    }
+
+    .form button {
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .upload {
+      margin: 18px 0;
+      padding: 18px;
+      border-radius: 22px;
+      background: #fff8f2;
+      border: 1px dashed rgba(255,106,0,.35);
+    }
+
+    .upload label {
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .upload strong {
+      color: var(--black);
+    }
+
+    .upload span {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .upload input {
+      display: none;
+    }
+
+    .upload-preview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .upload-preview img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .ready-carousel {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .ready-slide {
+      aspect-ratio: 1/1;
+      border-radius: 26px;
+      padding: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(255,106,0,.18), transparent 40%),
+        linear-gradient(135deg, #ffffff, #fff4e8);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .ready-slide.dark {
+      background:
+        radial-gradient(circle at top right, rgba(255,106,0,.35), transparent 42%),
+        linear-gradient(135deg, #111, #24201d);
+      color: #fff;
+    }
+
+    .ready-slide small {
+      color: var(--orange);
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .ready-slide h3 {
+      font-size: clamp(20px, 3vw, 30px);
+      line-height: .95;
+      letter-spacing: -0.06em;
+      margin: 12px 0;
+    }
+
+    .ready-slide p {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .ready-slide.dark p {
+      color: #d7d7d7;
+    }
+
+    .ready-slide b {
+      color: var(--orange);
+      font-weight: 900;
+    }
+
+    .ready-slide img {
+      width: 100%;
+      height: 44%;
+      object-fit: cover;
+      border-radius: 18px;
+      margin-top: 14px;
+    }
+
+    .export-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 46px 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    @media (max-width: 920px) {
+      .nav {
+        display: none;
+      }
+
+      .hero,
+      .generator {
+        grid-template-columns: 1fr;
+      }
+
+      .stats,
+      .post-grid,
+      .features,
+      .ready-carousel {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard {
+        order: -1;
+      }
+
+      .post-card {
+        min-height: 260px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="header">
+      <a href="#" class="brand" aria-label="PostManager">
+        <span class="brand-icon">p</span>
+        post<span>manager</span>
+      </a>
+
+      <nav class="nav">
+        <a href="#exemplos">Exemplos</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#preco">Preço</a>
+        <a href="#gerador">Gerador</a>
+      </nav>
+
+      <a href="#gerador" class="button small">Começar</a>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="tag">✦ IA para carrosséis prontos</div>
+
+        <h1>Crie carrosséis visuais prontos para postar.</h1>
+
+        <p>
+          O PostManager transforma uma ideia em um carrossel com textos, imagens,
+          layout, CTA e estrutura visual pronta para Instagram.
+        </p>
+
+        <div class="actions">
+          <a href="#gerador" class="button">Testar agora</a>
+          <a href="#exemplos" class="button ghost">Ver exemplos</a>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong>3 min</strong>
+            <span>para montar uma prévia</span>
+          </div>
+
+          <div class="stat">
+            <strong>IA</strong>
+            <span>copy + visual + CTA</span>
+          </div>
+
+          <div class="stat">
+            <strong>R$49,90</strong>
+            <span>assinatura mensal</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard">
+        <div class="dash-content">
+          <div class="dash-top">
+            <strong>PostManager IA</strong>
+            <span>Carrossel pronto</span>
+          </div>
+
+          <div class="dash-grid">
+            <div class="dash-card">
+              <small>Slides</small>
+              <strong>08</strong>
+            </div>
+
+            <div class="dash-card">
+              <small>Tempo</small>
+              <strong>+70%</strong>
+            </div>
+
+            <div class="dash-card">
+              <small>Layout</small>
+              <strong>Sim</strong>
+            </div>
+
+            <div class="dash-card">
+              <small>CTA</small>
+              <strong>Sim</strong>
+            </div>
+          </div>
+
+          <div class="dash-preview">
+            <small>Resultado gerado</small>
+            <h3>“Sua marca transmite valor?”</h3>
+            <p>Slide pronto com texto, composição e chamada para ação.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="exemplos" class="section">
+      <div class="section-head">
+        <div class="tag">Exemplos</div>
+        <h2>Posts para nichos diferentes.</h2>
+        <p>Simulação de carrosséis gerados para social media, advocacia, psicologia e petshop.</p>
+      </div>
+
+      <div class="post-grid">
+        <article class="post-card orange">
+          <small>Social Media</small>
+          <h3>Gestão de conteúdo que gera presença.</h3>
+          <span>Estratégia • Conteúdo • Resultado</span>
+        </article>
+
+        <article class="post-card dark">
+          <small>Advocacia</small>
+          <h3>Autoridade e confiança para seu escritório.</h3>
+          <span>Ética • Clareza • Credibilidade</span>
+        </article>
+
+        <article class="post-card green">
+          <small>Psicologia</small>
+          <h3>Cuidar da mente também é prioridade.</h3>
+          <span>Acolhimento • Saúde • Escuta</span>
+        </article>
+
+        <article class="post-card pet">
+          <small>Petshop</small>
+          <h3>Seu pet merece cuidado completo.</h3>
+          <span>Banho • Tosa • Produtos</span>
+        </article>
+      </div>
+    </section>
+
+    <section id="recursos" class="section">
+      <div class="section-head">
+        <div class="tag">Recursos</div>
+        <h2>Do briefing ao carrossel visual.</h2>
+        <p>Uma ferramenta pensada para designers, social medias, agências e criadores.</p>
+      </div>
+
+      <div class="features">
+        <article class="feature">
+          <div class="icon">⚡</div>
+          <h3>Geração rápida</h3>
+          <p>Crie uma prévia visual com textos, estrutura e CTA sem começar do zero.</p>
+        </article>
+
+        <article class="feature">
+          <div class="icon">🎨</div>
+          <h3>Layout aplicado</h3>
+          <p>Os slides aparecem em formato visual, com hierarquia, contraste e composição.</p>
+        </article>
+
+        <article class="feature">
+          <div class="icon">📸</div>
+          <h3>Imagens no carrossel</h3>
+          <p>Envie imagens que devem aparecer obrigatoriamente nos slides gerados.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="preco" class="section">
+      <div class="pricing">
+        <small>Assinatura mensal</small>
+
+        <div class="price">
+          <span class="currency">R$</span>
+          <span class="main-price">49</span>
+          <span class="price-side">
+            <b>,90</b>
+            <em>/mês</em>
+          </span>
+        </div>
+
+        <p>Acesso ao gerador de carrosséis prontos com IA.</p>
+
+        <ul>
+          <li>Geração de carrosséis visuais</li>
+          <li>Hook, copy, CTA e legenda</li>
+          <li>Upload de imagens para os slides</li>
+          <li>Prévia pronta para apresentar</li>
+        </ul>
+
+        <a href="#gerador" class="button">Assinar agora</a>
+      </div>
+    </section>
+
+    <section id="gerador" class="section generator">
+      <form id="carouselForm" class="form">
+        <h2>Gerar carrossel</h2>
+
+        <label>
+          Tema
+          <input id="tema" type="text" placeholder="Ex: identidade visual para pequenos negócios" required />
+        </label>
+
+        <label>
+          Nicho
+          <input id="nicho" type="text" placeholder="Ex: social media, odontologia, moda..." required />
+        </label>
+
+        <label>
+          Objetivo
+          <select id="objetivo">
+            <option>Vender</option>
+            <option>Educar</option>
+            <option>Gerar autoridade</option>
+            <option>Atrair seguidores</option>
+          </select>
+        </label>
+
+        <div class="upload">
+          <label for="imagensCarrossel">
+            <strong>Adicionar imagens ao carrossel</strong>
+            <span>Envie imagens que devem aparecer nos slides gerados.</span>
+            <input id="imagensCarrossel" type="file" accept="image/png,image/jpeg,image/jpg" multiple />
+          </label>
+
+          <div id="previewImagens" class="upload-preview"></div>
+        </div>
+
+        <button type="submit">Gerar carrossel visual</button>
+      </form>
+
+      <section id="resultado" class="result">
+        <h2>Prévia do carrossel</h2>
+
+        <div class="ready-carousel">
+          <article class="ready-slide dark">
+            <div>
+              <small>Slide 1</small>
+              <h3>Seu carrossel pronto aparece aqui.</h3>
+              <p>Com texto, layout, CTA e imagens aplicadas.</p>
+            </div>
+            <b>postmanager</b>
+          </article>
+
+          <article class="ready-slide">
+            <div>
+              <small>Slide 2</small>
+              <h3>Não apenas roteiro.</h3>
+              <p>Uma prévia visual pronta para apresentar.</p>
+            </div>
+            <b>Gerar agora</b>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <footer>
+      PostManager — IA para criar carrosséis prontos.
+    </footer>
+  </main>
+
+  <script>
+    const form = document.getElementById("carouselForm");
+    const resultado = document.getElementById("resultado");
+    const imagensInput = document.getElementById("imagensCarrossel");
+    const previewImagens = document.getElementById("previewImagens");
+    let imagensDoCarrossel = [];
+
+    if (imagensInput) {
+      imagensInput.addEventListener("change", function(event) {
+        imagensDoCarrossel = [];
+        previewImagens.innerHTML = "";
+
+        Array.from(event.target.files || []).forEach(function(arquivo) {
+          if (!arquivo.type.startsWith("image/")) return;
+
+          const reader = new FileReader();
+
+          reader.onload = function(e) {
+            imagensDoCarrossel.push(e.target.result);
+
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.alt = "Imagem enviada para o carrossel";
+            previewImagens.appendChild(img);
+          };
+
+          reader.readAsDataURL(arquivo);
+        });
+      });
+    }
+
+    function imagemParaSlide(numero) {
+      if (!imagensDoCarrossel.length) return "";
+      return imagensDoCarrossel[(numero - 1) % imagensDoCarrossel.length];
+    }
+
+    function imagemHTML(numero) {
+      const img = imagemParaSlide(numero);
+      if (!img) return "";
+      return '<img src="' + img + '" alt="Imagem aplicada no slide ' + numero + '">';
+    }
+
+    function baixarComoHTML() {
+      const conteudo = document.getElementById("resultado").innerHTML;
+      const arquivo = new Blob([conteudo], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(arquivo);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "carrossel-postmanager.html";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    if (form) {
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const tema = document.getElementById("tema").value;
+        const nicho = document.getElementById("nicho").value;
+        const objetivo = document.getElementById("objetivo").value;
+
+        resultado.innerHTML =
+          '<h2>Carrossel visual pronto</h2>' +
+
+          '<div class="export-actions">' +
+            '<button type="button" onclick="baixarComoHTML()">Baixar prévia em HTML</button>' +
+          '</div>' +
+
+          '<div class="ready-carousel">' +
+
+            '<article class="ready-slide dark">' +
+              '<div>' +
+                '<small>Slide 1</small>' +
+                '<h3>' + tema + '</h3>' +
+                '<p>Um hook visual forte para chamar atenção do público de ' + nicho + '.</p>' +
+                imagemHTML(1) +
+              '</div>' +
+              '<b>postmanager</b>' +
+            '</article>' +
+
+            '<article class="ready-slide">' +
+              '<div>' +
+                '<small>Slide 2</small>' +
+                '<h3>O problema que poucos percebem.</h3>' +
+                '<p>Mostre o erro principal que impede esse público de avançar.</p>' +
+                imagemHTML(2) +
+              '</div>' +
+              '<b>postmanager</b>' +
+            '</article>' +
+
+            '<article class="ready-slide">' +
+              '<div>' +
+                '<small>Slide 3</small>' +
+                '<h3>A solução precisa ser clara.</h3>' +
+                '<p>Organize a mensagem com visual limpo, contraste e foco em ação.</p>' +
+                imagemHTML(3) +
+              '</div>' +
+              '<b>' + objetivo + '</b>' +
+            '</article>' +
+
+            '<article class="ready-slide dark">' +
+              '<div>' +
+                '<small>Slide 4</small>' +
+                '<h3>Pronto para postar.</h3>' +
+                '<p>Texto, imagem, hierarquia e chamada final em um carrossel visual.</p>' +
+                imagemHTML(4) +
+              '</div>' +
+              '<b>Chame no direct</b>' +
+            '</article>' +
+
+          '</div>';
+      });
+    }
+  </script>
+</body>
+</html>
