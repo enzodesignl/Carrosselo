@@ -4,7 +4,44 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { tema, nicho, objetivo } = req.body;
+    const { mensagem, tema, nicho, objetivo } = req.body;
+
+    const pedido = mensagem || `
+Tema: ${tema || ""}
+Nicho: ${nicho || ""}
+Objetivo: ${objetivo || ""}
+`;
+
+    const prompt = `
+Você é o Carrosselo, uma IA especialista em carrosséis para Instagram.
+
+Crie um carrossel visual e estratégico com base no pedido do usuário:
+
+${pedido}
+
+Retorne APENAS JSON válido, sem markdown, sem explicações fora do JSON.
+
+Formato obrigatório:
+{
+  "slides": [
+    {
+      "titulo": "Título curto do slide",
+      "texto": "Texto curto e claro do slide",
+      "direcaoVisual": "Direção visual objetiva para este slide"
+    }
+  ],
+  "legenda": "Legenda curta para o post",
+  "cta": "Chamada para ação"
+}
+
+Regras:
+- Gere exatamente 5 slides.
+- Use linguagem profissional, clara e direta.
+- Cada título deve ser forte e curto.
+- Cada texto deve ter no máximo 2 frases.
+- A direção visual deve orientar o design do slide.
+- Pense em um carrossel pronto para Instagram.
+`;
 
     const resposta = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -17,34 +54,10 @@ export default async function handler(req, res) {
         messages: [
           {
             role: "user",
-            content: `
-Crie um carrossel visual para Instagram.
-
-Tema: ${tema}
-Nicho: ${nicho}
-Objetivo: ${objetivo}
-
-Retorne apenas JSON válido neste formato:
-
-{
-  "slides": [
-    {
-      "titulo": "...",
-      "texto": "...",
-      "direcaoVisual": "..."
-    }
-  ],
-  "legenda": "...",
-  "cta": "..."
-}
-
-Crie 4 slides.
-Textos curtos.
-Linguagem profissional.
-Cores sugeridas: branco, preto e laranja.
-`
+            content: prompt
           }
-        ]
+        ],
+        temperature: 0.7
       })
     });
 
@@ -52,14 +65,12 @@ Cores sugeridas: branco, preto e laranja.
 
     if (!resposta.ok) {
       return res.status(500).json({
-        erro: data.error?.message || "Erro na OpenAI"
+        erro: data.error?.message || "Erro ao gerar carrossel"
       });
     }
 
-    const texto = data.choices[0].message.content;
-
     return res.status(200).json({
-      resultado: texto
+      resultado: data.choices[0].message.content
     });
 
   } catch (erro) {
