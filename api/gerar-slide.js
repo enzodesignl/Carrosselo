@@ -4,7 +4,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { titulo, descricao, direcaoVisual, contextoGeral, numeroSlide } = req.body;
+    const { titulo, descricao, direcaoVisual, contextoGeral, numeroSlide, marca } = req.body;
+
+    const identidade = marca ? `
+Identidade da marca do usuário:
+- Nome: ${marca.nome || "não informado"}
+- Nicho: ${marca.nicho || "não informado"}
+- Cor principal: ${marca.corPrincipal || "não informado"}
+- Cor secundária: ${marca.corSecundaria || "não informado"}
+- Tipografia: ${marca.tipografia || "não informado"}
+- Estilo visual: ${marca.estilo || "não informado"}
+- Tom de voz: ${marca.tomVoz || "não informado"}
+- Referências: ${marca.referencias || "não informado"}
+- Observações: ${marca.observacoes || "não informado"}
+A logo foi enviada no app apenas como referência visual local, então represente a identidade da marca sem tentar recriar a logo com precisão.
+` : "";
 
     const promptImagem = `
 Crie UMA imagem quadrada pronta para postar no Instagram.
@@ -13,6 +27,8 @@ Esta imagem é o SLIDE ${numeroSlide || ""} de um carrossel.
 
 Contexto geral do carrossel:
 ${contextoGeral || ""}
+
+${identidade}
 
 Título do slide:
 ${titulo || ""}
@@ -25,10 +41,11 @@ ${direcaoVisual || ""}
 
 Regras:
 - Respeite exatamente o pedido visual do usuário
+- Use a identidade visual da marca como referência
+- Respeite cores, estilo, tipografia e tom da marca
 - Se o usuário pediu cor de fundo, use essa cor
 - Se o usuário pediu estilo específico, siga esse estilo
-- Não force preto, laranja ou branco se o usuário pediu outras cores
-- Só use preto/laranja/branco como padrão se o usuário não especificar cores
+- Não force preto, laranja ou branco se a marca/pedido indicar outras cores
 - Design profissional
 - Layout moderno
 - Tipografia forte e legível

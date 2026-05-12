@@ -4,8 +4,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { mensagem, prompt } = req.body;
+    const { mensagem, prompt, marca } = req.body;
     const pedidoUsuario = mensagem || prompt || "";
+
+    const identidade = marca ? `
+Identidade da marca do usuário:
+- Nome: ${marca.nome || "não informado"}
+- Nicho: ${marca.nicho || "não informado"}
+- Cor principal: ${marca.corPrincipal || "não informado"}
+- Cor secundária: ${marca.corSecundaria || "não informado"}
+- Tipografia: ${marca.tipografia || "não informado"}
+- Estilo visual: ${marca.estilo || "não informado"}
+- Tom de voz: ${marca.tomVoz || "não informado"}
+- Referências: ${marca.referencias || "não informado"}
+- Observações: ${marca.observacoes || "não informado"}
+` : "";
 
     const roteiroResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -23,6 +36,8 @@ Você é o Carrosselo, um estrategista de conteúdo e diretor criativo especiali
 
 Crie um roteiro extremamente atrativo e estratégico.
 
+Use a identidade da marca do usuário como referência quando ela for informada.
+
 Regras:
 - Gere exatamente 5 slides
 - Slide 1: gancho forte
@@ -33,8 +48,9 @@ Regras:
 - Não escreva textos genéricos
 - Use copywriting moderno
 - Mantenha continuidade narrativa
-- Respeite cores e estilo pedidos pelo usuário
-- Não force preto/laranja se o usuário pedir outras cores
+- Respeite cores, tipografia, estilo, tom de voz e observações da marca
+- Se o usuário pedir algo diferente da identidade salva, priorize o pedido atual do usuário
+- Não force preto/laranja se o usuário ou marca indicarem outras cores
 
 Retorne apenas JSON válido, sem markdown:
 
@@ -53,7 +69,10 @@ Retorne apenas JSON válido, sem markdown:
           },
           {
             role: "user",
-            content: pedidoUsuario
+            content: `${identidade}
+
+Pedido do usuário:
+${pedidoUsuario}`
           }
         ],
         temperature: 0.85
